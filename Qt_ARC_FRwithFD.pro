@@ -25,7 +25,9 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    test.cpp \
+    arcfaceengine.cpp
 
 HEADERS += \
     inc/amcomdef.h \
@@ -33,7 +35,10 @@ HEADERS += \
     inc/arcsoft_fsdk_face_recognition.h \
     inc/asvloffscreen.h \
     inc/merror.h \
-    mainwindow.h
+    mainwindow.h \
+    test.h \
+    key.h \
+    arcfaceengine.h
 
 FORMS += \
     mainwindow.ui
