@@ -24,11 +24,30 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 
 SOURCES += \
-        main.cpp \
-        widget.cpp
+    main.cpp \
+    mainwindow.cpp
 
 HEADERS += \
-        widget.h
+    inc/amcomdef.h \
+    inc/arcsoft_fsdk_face_detection.h \
+    inc/arcsoft_fsdk_face_recognition.h \
+    inc/asvloffscreen.h \
+    inc/merror.h \
+    mainwindow.h
 
 FORMS += \
-        widget.ui
+    mainwindow.ui
+
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../DevelopLIBS/release/ -larcsoft_fsdk_face_detection
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../DevelopLIBS/debug/ -larcsoft_fsdk_face_detection
+else:unix: LIBS += -L$$PWD/../../DevelopLIBS/ -larcsoft_fsdk_face_detection
+
+INCLUDEPATH += $$PWD/../../DevelopLIBS
+DEPENDPATH += $$PWD/../../DevelopLIBS
+
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../DevelopLIBS/release/ -larcsoft_fsdk_face_recognition
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../DevelopLIBS/debug/ -larcsoft_fsdk_face_recognition
+else:unix: LIBS += -L$$PWD/../../DevelopLIBS/ -larcsoft_fsdk_face_recognition
+
+INCLUDEPATH += $$PWD/../../DevelopLIBS
+DEPENDPATH += $$PWD/../../DevelopLIBS
