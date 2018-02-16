@@ -38,7 +38,8 @@ HEADERS += \
     mainwindow.h \
     test.h \
     key.h \
-    arcfaceengine.h
+    arcfaceengine.h \
+    bmp.h
 
 FORMS += \
     mainwindow.ui

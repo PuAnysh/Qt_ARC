@@ -2,7 +2,11 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QDebug>
+#include <bits/stdc++.h>
 #include "arcfaceengine.h"
+#include "inc/asvloffscreen.h"
+#include "bmp.h"
 namespace Ui {
 class MainWindow;
 }
@@ -17,6 +21,7 @@ public:
 protected slots:
     int onStartBtnClicked();
     int onStopBtnClicked();
+    int onWorkBtnClick();
 private:
     Ui::MainWindow *ui;
     ARCFaceEngine engine;

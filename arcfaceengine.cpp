@@ -86,3 +86,59 @@ int ARCFaceEngine::UninitialEngine()
         return 0;
     }
 }
+
+int ARCFaceEngine::addFeature(unsigned char* data , int width , int height ,MUInt32 format )
+{
+    ASVLOFFSCREEN inputImg = {0};
+    inputImg.u32PixelArrayFormat = format;
+    inputImg.i32Width = width;
+    inputImg.i32Height = height;
+    inputImg.ppu8Plane[0] = data;
+    if (ASVL_PAF_I420 == inputImg.u32PixelArrayFormat) {
+        inputImg.pi32Pitch[0] = inputImg.i32Width;
+        inputImg.pi32Pitch[1] = inputImg.i32Width/2;
+        inputImg.pi32Pitch[2] = inputImg.i32Width/2;
+        inputImg.ppu8Plane[1] = inputImg.ppu8Plane[0] + inputImg.pi32Pitch[0] * inputImg.i32Height;
+        inputImg.ppu8Plane[2] = inputImg.ppu8Plane[1] + inputImg.pi32Pitch[1] * inputImg.i32Height/2;
+    } else if (ASVL_PAF_NV12 == inputImg.u32PixelArrayFormat) {
+        inputImg.pi32Pitch[0] = inputImg.i32Width;
+        inputImg.pi32Pitch[1] = inputImg.i32Width;
+        inputImg.ppu8Plane[1] = inputImg.ppu8Plane[0] + (inputImg.pi32Pitch[0] * inputImg.i32Height);
+    } else if (ASVL_PAF_NV21 == inputImg.u32PixelArrayFormat) {
+        inputImg.pi32Pitch[0] = inputImg.i32Width;
+        inputImg.pi32Pitch[1] = inputImg.i32Width;
+        inputImg.ppu8Plane[1] = inputImg.ppu8Plane[0] + (inputImg.pi32Pitch[0] * inputImg.i32Height);
+    } else if (ASVL_PAF_YUYV == inputImg.u32PixelArrayFormat) {
+        inputImg.pi32Pitch[0] = inputImg.i32Width*2;
+    } else if (ASVL_PAF_I422H == inputImg.u32PixelArrayFormat) {
+        inputImg.pi32Pitch[0] = inputImg.i32Width;
+        inputImg.pi32Pitch[1] = inputImg.i32Width / 2;
+        inputImg.pi32Pitch[2] = inputImg.i32Width / 2;
+        inputImg.ppu8Plane[1] = inputImg.ppu8Plane[0] + inputImg.pi32Pitch[0] * inputImg.i32Height;
+        inputImg.ppu8Plane[2] = inputImg.ppu8Plane[1] + inputImg.pi32Pitch[1] * inputImg.i32Height;
+    } else if (ASVL_PAF_LPI422H == inputImg.u32PixelArrayFormat) {
+        inputImg.pi32Pitch[0] = inputImg.i32Width;
+        inputImg.pi32Pitch[1] = inputImg.i32Width;
+        inputImg.ppu8Plane[1] = inputImg.ppu8Plane[0] + (inputImg.pi32Pitch[0] * inputImg.i32Height);
+    } else if (ASVL_PAF_RGB24_B8G8R8 == inputImg.u32PixelArrayFormat) {
+        inputImg.pi32Pitch[0] = inputImg.i32Width*3;
+    } else {
+        fprintf(stderr, "unsupported Image format: 0x%x\r\n",inputImg.u32PixelArrayFormat);
+        return -1;
+    }
+    LPAFD_FSDK_FACERES faceResult;
+    int FDret = AFD_FSDK_StillImageFaceDetection(FDEngine  , &inputImg , &faceResult);
+    if(FDret != MOK){
+        fprintf(stderr , "fail to AFD_FSDK_StillImageFaceDetection(): 0x%x\r\n" , FDret);
+        return  -1;
+    }
+    /********debug*********/
+    fprintf(stderr , "face number %d\r\n" , faceResult->nFace);
+    for (int i = 0; i < faceResult->nFace; i++) {
+        fprintf(stderr , "face %d:(%d,%d,%d,%d)\r\n", i,
+               faceResult->rcFace[i].left, faceResult->rcFace[i].top,
+               faceResult->rcFace[i].right, faceResult->rcFace[i].bottom);
+
+    }
+    /********debug*********/
+}

@@ -12,6 +12,7 @@ public:
     ARCFaceEngine();
     int InitEngine();
     int UninitialEngine();
+    int addFeature(unsigned char* data , int width , int height ,MUInt32 format);
 private:
     MHandle FDEngine;
     MHandle FREngine;
