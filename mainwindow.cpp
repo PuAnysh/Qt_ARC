@@ -19,6 +19,7 @@ MainWindow::~MainWindow()
 int MainWindow::onStartBtnClicked()
 {
     engine.InitEngine();
+    engine.setDB(&db);
 }
 
 int MainWindow::onStopBtnClicked()
@@ -27,16 +28,25 @@ int MainWindow::onStopBtnClicked()
 }
 int MainWindow::onWorkBtnClick()
 {
-    char* filename = "/home/huangyc/0/5.jpg";
+    char* filename = "/home/huangyc/0/0.jpg";
     QImage img(filename);
     uchar* bits =  img.bits();
     uchar* tmp = (uchar*) malloc(img.byteCount()/4*3);
     int top = 0;
-    qDebug()<<img.byteCount()<<endl;
     for(int i = 0 ; i < img.byteCount() ; i++){
         if((i+1)%4 == 0) continue;
         tmp[top++] = bits[i];
     }
-    return engine.addFeature((uchar*) tmp , img.width() , img.height() , ASVL_PAF_RGB24_B8G8R8);
+    engine.addFeature((uchar*) tmp , img.width() , img.height() , ASVL_PAF_RGB24_B8G8R8);
+    char* filename2 = "/home/huangyc/0/1.jpg";
+    QImage img2(filename2);
+    uchar* bits2 =  img.bits();
+    uchar* tmp2 = (uchar*) malloc(img2.byteCount()/4*3);
+    int top2 = 0;
+    for(int i = 0 ; i < img2.byteCount() ; i++){
+        if((i+1)%4 == 0) continue;
+        tmp2[top2++] = bits2[i];
+    }
+    engine.compareFeature(tmp2 , img2.width() , img2.height() ,ASVL_PAF_RGB24_B8G8R8 );
 
 }

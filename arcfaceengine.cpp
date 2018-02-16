@@ -6,6 +6,7 @@ ARCFaceEngine::ARCFaceEngine()
     FDEngine = nullptr;
     pFDWorkBUF = nullptr;
     pFRWorkBUF = nullptr;
+    pdb = nullptr;
 }
 
 int ARCFaceEngine::InitEngine()
@@ -26,7 +27,7 @@ int ARCFaceEngine::InitEngine()
         fprintf(stderr , "fail to malloc FDWorkbuf\r\n");
         return -1;
     }
-    int ret_FD = AFD_FSDK_InitialFaceEngine(APPID , FD_SDKKEY , pFDWorkBUF , WORKSIZE , &FDEngine , AFD_FSDK_OPF_0_HIGHER_EXT , 16 , 1);
+    int ret_FD = AFD_FSDK_InitialFaceEngine(APPID , FD_SDKKEY , pFDWorkBUF , WORKSIZE , &FDEngine , AFD_FSDK_OPF_0_ONLY , 16 , 1);
     if(ret_FD != MOK) {
         fprintf(stderr , "fail to AFD_FSDK_InitialFaceEngine(): 0x%x\r\n" , ret_FD);
         free(pFDWorkBUF);
@@ -87,9 +88,11 @@ int ARCFaceEngine::UninitialEngine()
     }
 }
 
-int ARCFaceEngine::addFeature(unsigned char* data , int width , int height ,MUInt32 format )
+int ARCFaceEngine::getFaceInputImg(unsigned char *data, int width, int height, MUInt32 format , ASVLOFFSCREEN &inputImg)
 {
-    ASVLOFFSCREEN inputImg = {0};
+    /*
+     * this block of code aims to get the rectangle of face
+    */
     inputImg.u32PixelArrayFormat = format;
     inputImg.i32Width = width;
     inputImg.i32Height = height;
@@ -126,12 +129,23 @@ int ARCFaceEngine::addFeature(unsigned char* data , int width , int height ,MUIn
         fprintf(stderr, "unsupported Image format: 0x%x\r\n",inputImg.u32PixelArrayFormat);
         return -1;
     }
+    return 0;
+}
+
+int ARCFaceEngine::getFeature(unsigned char *data, int width, int height, MUInt32 format, LPAFR_FSDK_FACEMODEL localmodel)
+{
+    ASVLOFFSCREEN inputImg;
     LPAFD_FSDK_FACERES faceResult;
+
+    getFaceInputImg(data , width , height , format , inputImg);
     int FDret = AFD_FSDK_StillImageFaceDetection(FDEngine  , &inputImg , &faceResult);
-    if(FDret != MOK){
+    if(FDret != MOK || faceResult->nFace != 1){
         fprintf(stderr , "fail to AFD_FSDK_StillImageFaceDetection(): 0x%x\r\n" , FDret);
         return  -1;
     }
+    AFR_FSDK_FACEINPUT fr_inputface;
+    fr_inputface.lOrient = AFR_FSDK_FOC_0;
+    fr_inputface.rcFace = faceResult->rcFace[0];
     /********debug*********/
     fprintf(stderr , "face number %d\r\n" , faceResult->nFace);
     for (int i = 0; i < faceResult->nFace; i++) {
@@ -141,4 +155,39 @@ int ARCFaceEngine::addFeature(unsigned char* data , int width , int height ,MUIn
 
     }
     /********debug*********/
+
+
+    int FRret = AFR_FSDK_ExtractFRFeature(FREngine , &inputImg , &fr_inputface , localmodel);
+    if(FRret != MOK){
+        fprintf(stderr , "fail to AFR_FSDK_ExtractFRFeature(): 0x%x\r\n" , FRret);
+        return -1;
+    }
+}
+
+int ARCFaceEngine::addFeature(unsigned char* data , int width , int height ,MUInt32 format )
+{
+
+    AFR_FSDK_FACEMODEL locamodel = {0};
+    getFeature(data , width , height , format , &locamodel);
+    pdb->add(locamodel , UserInformation());
+    //fprintf(stderr , "%d %s\r\n" , locamodel.lFeatureSize , locamodel.pbFeature);
+}
+
+int ARCFaceEngine::compareFeature(unsigned char *data, int width, int height, MUInt32 format)
+{
+    AFR_FSDK_FACEMODEL localmodel = {0};
+    getFeature(data , width , height , format , &localmodel);
+    MFloat res;
+    const vector<LPAFR_FSDK_FACEMODEL>* vecDB = pdb->getDB();
+    fprintf(stderr , "%d\r\n"  , vecDB->size());
+    for(int i = 0 ; i < vecDB->size() ; i++){
+
+        AFR_FSDK_FacePairMatching(FREngine , vecDB->at(i) , &localmodel , &res);
+        fprintf(stderr , "%f\r\n" , res);
+    }
+}
+
+int ARCFaceEngine::setDB(ARCFaceFeatureDB *_pdb)
+{
+    pdb = _pdb;
 }

@@ -6,6 +6,7 @@
 #include <bits/stdc++.h>
 #include "arcfaceengine.h"
 #include "inc/asvloffscreen.h"
+#include "arcfacefeaturedb.h"
 #include "bmp.h"
 namespace Ui {
 class MainWindow;
@@ -25,6 +26,7 @@ protected slots:
 private:
     Ui::MainWindow *ui;
     ARCFaceEngine engine;
+    ARCFaceFeatureDB db;
 };
 
 #endif // MAINWINDOW_H

@@ -27,7 +27,9 @@ SOURCES += \
     main.cpp \
     mainwindow.cpp \
     test.cpp \
-    arcfaceengine.cpp
+    arcfaceengine.cpp \
+    arcfacefeaturedb.cpp \
+    userinformation.cpp
 
 HEADERS += \
     inc/amcomdef.h \
@@ -39,7 +41,9 @@ HEADERS += \
     test.h \
     key.h \
     arcfaceengine.h \
-    bmp.h
+    bmp.h \
+    arcfacefeaturedb.h \
+    userinformation.h
 
 FORMS += \
     mainwindow.ui
